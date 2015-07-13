@@ -6,19 +6,23 @@
 
 		currentPoint: "",
 
-		arrTimes: {},
+		arrTimes: [],
 
 		t: 0,
+
+		msg: "",
+
+		position: 0,
 
 		start: function() {
 			
 			var nameCurrentPoint = TimerWaypoint.currentPoint;
+			var position = TimerWaypoint.position;
 
 			if( TimerWaypoint.arrTimes[nameCurrentPoint] === undefined ) {
-				TimerWaypoint.arrTimes[nameCurrentPoint] = [];	
+				//TimerWaypoint.arrTimes[TimerWaypoint.position]["waypoint"] = [];	
 			} else {
-
-				var existTimerInWaypoint = TimerWaypoint.arrTimes[nameCurrentPoint];
+				var existTimerInWaypoint = TimerWaypoint.arrTimes[TimerWaypoint.position];
 				var lastEntry 			 = existTimerInWaypoint[existTimerInWaypoint.length -1];
 				
 				if( lastEntry !== undefined && lastEntry.stop === undefined ) {
@@ -31,29 +35,35 @@
 					"stop"	: undefined,
 					"idle"  : 0,
 					"name"  : nameCurrentPoint
-				}
+				};
 
 
-			TimerWaypoint.arrTimes[nameCurrentPoint].push(
-															newTimer	
-									    				)
+			TimerWaypoint.arrTimes.push({ waypoint : newTimer});
+									    				
 		},
 
 		stop: function() {
 			var nameCurrentPoint = TimerWaypoint.currentPoint;			
-			TimerWaypoint.arrTimes[nameCurrentPoint][0].stop = new Date()
+			TimerWaypoint.arrTimes[nameCurrentPoint].stop = new Date();
 		},
 
-		setIdleToThisPoint: function(duration,name) {
+		setIdleToThisPoint: function(duration, callback) {
 			var idlePoint = parseFloat(duration);
 			if( isNaN(idlePoint) === false ) {
-				TimerWaypoint.inactivityTime(idlePoint);	
-				TimerWaypoint.arrTimes[TimerWaypoint.currentPoint][0].idle = idlePoint;
+				TimerWaypoint.inactivityTime(idlePoint, callback);	
+				TimerWaypoint.arrTimes[TimerWaypoint.position].waypoint.idle = idlePoint;
 			}		
 		},
 
-		setCurrentPoint : function(namePoint) {
-			TimerWaypoint.currentPoint = namePoint;
+		setCurrentPoint : function(position) {
+			TimerWaypoint.position = position;
+		},
+
+		setName : function(name) {
+			TimerWaypoint.currentPoint = name;
+		},
+		setMessage : function(msg) {
+			TimerWaypoint.msg = msg;
 		},
 
 		getCurrentTime: function() {
@@ -64,8 +74,8 @@
 
 			var totalTime = 0;
 
-			var start = TimerWaypoint.arrTimes[TimerWaypoint.currentPoint][0].start
-			var stop  = TimerWaypoint.arrTimes[TimerWaypoint.currentPoint][0].stop
+			var start = TimerWaypoint.arrTimes[TimerWaypoint.position].waypoint.start;
+			var stop  = TimerWaypoint.arrTimes[TimerWaypoint.position].waypoint.stop;
 
 			if( stop === undefined ) {
 				stop = new Date();
@@ -75,18 +85,40 @@
 			return (Number(spent));
 		},
 
+		getAllTime: function() {
+			
+			var totalTime = 0;
+
+			for (var i = 0; i < TimerWaypoint.arrTimes.length; i++) {
+				var start = TimerWaypoint.arrTimes[i].waypoint.start;
+				var stop  = TimerWaypoint.arrTimes[i].waypoint.stop;
+				
+				if( stop === undefined ) {
+					stop = new Date();
+				}
+
+				var spent = stop - start;
+				totalTime += (Number(spent));
+			}
+
+			return totalTime;
+
+		},
+
 		initialize: function (){
 			TimerWaypoint.start();
 		},
 
-		inactivityTime : function(idle) {
+		inactivityTime : function(idle, callback) {
 		    
 		    window.onload = resetTimer;
 		    document.onmousemove = resetTimer;
 		    document.onkeypress = resetTimer;
 
 		    function notify() {
-		        toastr.info("Eiiii que te has dormido, recuerda que estas en el punto: " + TimerWaypoint.arrTimes[TimerWaypoint.currentPoint][0].name + "llevas " + TimerWaypoint.getTime() / 1000 );	        
+				if( typeof callback === 'function'){
+					callback();
+				} 			        
 		    }
 
 		    function resetTimer() {
@@ -97,6 +129,6 @@
 		},
 
 
-	}
+	};
 
 })();
