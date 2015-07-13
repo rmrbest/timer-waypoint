@@ -117,13 +117,13 @@
 
 		    function notify() {
 				if( typeof callback === 'function'){
-					callback();
+					callback(param);
 				} 			        
 		    }
 
 		    function resetTimer() {
 		        clearTimeout(TimerWaypoint.t);
-		        TimerWaypoint.t = setTimeout(notify, idle);		        
+		        TimerWaypoint.t = setTimeout(notify, TimerWaypoint.arrTimes[TimerWaypoint.position].waypoint.idle);		        
 		    }			
 
 		},
