@@ -30,7 +30,7 @@
 				}
 			}
 
-			var newTimer = {
+			var newTimer = { 
 					"start" : new Date(),
 					"stop"	: undefined,
 					"idle"  : 0,
@@ -44,7 +44,15 @@
 
 		stop: function() {
 			var nameCurrentPoint = TimerWaypoint.currentPoint;			
-			TimerWaypoint.arrTimes[nameCurrentPoint].stop = new Date();
+			TimerWaypoint.arrTimes[nameCurrentPoint].waypoint.stop = new Date();
+		},
+
+		stopByKey: function(key) {
+			try{
+				TimerWaypoint.arrTimes[key].waypoint.stop = new Date();	
+			}catch(err){
+				console.log("Error stopByKey " + err);
+			}			
 		},
 
 		setIdleToThisPoint: function(duration, callback) {
@@ -62,12 +70,37 @@
 		setName : function(name) {
 			TimerWaypoint.currentPoint = name;
 		},
+		
 		setMessage : function(msg) {
 			TimerWaypoint.msg = msg;
 		},
 
 		getCurrentTime: function() {
 			return TimerWaypoint.getTime();
+		},
+
+		getTimeByKey: function(key) {
+			var totalTime = 0;
+
+			try{
+				
+				var start = TimerWaypoint.arrTimes[key].waypoint.start;
+				var stop  = TimerWaypoint.arrTimes[key].waypoint.stop;
+
+				if( stop === undefined ) {
+					stop = new Date();
+				}
+
+				var spent = stop - start;
+				return (Number(spent));
+
+			}catch(err) {
+				console.log("Error array TimerWaypoint " + err);
+				return 0;
+			}
+
+			return 0;
+
 		},
 
 		getTime: function() {
